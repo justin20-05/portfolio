@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Cpu, Globe, Activity, Terminal, Sparkles, Layers, Mail, MapPin, X, ExternalLink } from 'lucide-react';
 import ParticlesBackground from './components/particlesbackground';
@@ -71,7 +71,6 @@ const projects = [
   }
 ];
 
-// Reusable Project Modal Component (Spatial UI)
 const ProjectModal = ({ project, onClose }) => {
   if (!project) return null;
   const IconComponent = project.icon;
@@ -142,23 +141,49 @@ const ProjectModal = ({ project, onClose }) => {
 };
 
 export default function App() {
+  const [activeSection, setActiveSection] = useState('overview');
   const [filter, setFilter] = useState('all');
   const [selectedProject, setSelectedProject] = useState(null);
+
+  // Automatically update active nav highlight on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ['overview', 'projects', 'contact'];
+      const scrollPosition = window.scrollY + 200;
+
+      for (const sectionId of sections) {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          const top = element.offsetTop;
+          const height = element.offsetHeight;
+
+          if (scrollPosition >= top && scrollPosition < top + height) {
+            setActiveSection(sectionId);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const filteredProjects = filter === 'all' 
     ? projects 
     : projects.filter(p => p.category === filter);
 
+  const navItemBase = "px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer border inline-block";
+  const navItemInactive = "text-slate-400 hover:text-cyan-400 hover:bg-cyan-950/20 border-transparent";
+  const navItemActive = "text-cyan-400 bg-cyan-950/40 border-cyan-800/50 shadow-[0_0_15px_rgba(6,182,212,0.3)]";
+
   return (
-    <div className="min-h-screen bg-[#0b0f17] text-slate-100 relative overflow-hidden font-sans">
-      {/* Dynamic 3D React Three Fiber Background */}
+    <div className="min-h-screen bg-[#0b0f17] text-slate-100 relative font-sans scroll-smooth">
       <ParticlesBackground />
 
-      {/* Spatial Ambient Glows */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
 
-      {/* Interactive Modal Portal */}
       <AnimatePresence>
         {selectedProject && (
           <ProjectModal 
@@ -168,57 +193,73 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Spatial Navigation */}
+      {/* Navigation with dynamic active section detection */}
       <nav className="p-6 border-b border-white/10 backdrop-blur-md sticky top-0 z-50 flex justify-between items-center px-8">
-        <div className="flex items-center gap-2 text-cyan-400 font-bold text-lg tracking-wider">
+        <a 
+          href="#overview" 
+          onClick={() => setActiveSection('overview')} 
+          className="flex items-center gap-2 text-cyan-400 font-bold text-lg tracking-wider"
+        >
           <Sparkles className="w-5 h-5" />
           <span>DEVELOPER.PORTFOLIO</span>
-        </div>
-        <div className="flex gap-6 text-sm font-medium text-slate-400">
-          <a href="#overview" className="hover:text-cyan-400 transition-colors">Overview</a>
-          <a href="#projects" className="hover:text-cyan-400 transition-colors">Projects</a>
-          <a href="#contact" className="hover:text-cyan-400 transition-colors">Contact</a>
+        </a>
+        
+        <div className="flex gap-2 items-center bg-slate-900/60 p-1.5 rounded-xl border border-white/5 shadow-inner">
+          <a 
+            href="#overview" 
+            onClick={() => setActiveSection('overview')}
+            className={`${navItemBase} ${activeSection === 'overview' ? navItemActive : navItemInactive}`}
+          >
+            Overview
+          </a>
+
+          <a 
+            href="#projects" 
+            onClick={() => setActiveSection('projects')}
+            className={`${navItemBase} ${activeSection === 'projects' ? navItemActive : navItemInactive}`}
+          >
+            Projects
+          </a>
+
+          <a 
+            href="#contact" 
+            onClick={() => setActiveSection('contact')}
+            className={`${navItemBase} ${activeSection === 'contact' ? navItemActive : navItemInactive}`}
+          >
+            Contact
+          </a>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section id="overview" className="max-w-6xl mx-auto px-6 py-20 relative z-10">
+      <section id="overview" className="max-w-6xl mx-auto px-6 py-20 relative z-10 scroll-mt-24">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="flex flex-col md:flex-row items-center justify-between gap-10"
         >
-          {/* Spatial Cutout Card (Left Side) */}
           <div className="relative shrink-0 group">
-            {/* Background Glow */}
             <div className="absolute -inset-4 bg-gradient-to-r from-cyan-500/30 via-blue-500/20 to-purple-600/30 rounded-3xl blur-2xl opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 pointer-events-none" />
 
-            {/* Spatial Glass Container */}
             <div className="relative w-52 h-64 md:w-64 md:h-80 rounded-3xl bg-slate-900/60 border border-cyan-500/30 backdrop-blur-xl overflow-hidden shadow-[0_0_50px_rgba(6,182,212,0.15)] flex items-end justify-center transition-all duration-500 group-hover:border-cyan-400/60">
-              
-              {/* Radial Top Glow */}
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-500/10 via-transparent to-transparent pointer-events-none" />
 
-              {/* Cutout Image */}
               <img 
                 src={profileImage} 
                 alt="Profile Cutout" 
                 className="relative z-10 h-[92%] w-auto object-cover object-bottom filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] group-hover:scale-105 transition-transform duration-500"
               />
 
-              {/* Bottom Gradient Overlay */}
               <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent z-20 pointer-events-none" />
             </div>
 
-            {/* Status Badge */}
             <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-30 px-3 py-1 rounded-full bg-slate-900/90 border border-cyan-400/50 text-[10px] font-mono tracking-widest text-cyan-400 uppercase flex items-center gap-1.5 shadow-lg backdrop-blur-md">
               <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
               <span>System Node</span>
             </div>
           </div>
 
-          {/* Heading & Intro Text (Right Side) */}
           <div className="text-center md:text-left max-w-2xl">
             <span className="px-3.5 py-1 text-xs rounded-full bg-cyan-950/80 text-cyan-400 border border-cyan-800/50 uppercase tracking-widest font-semibold inline-block">
               Full-Stack • AI / Machine Learning • IoT Engineering
@@ -236,13 +277,12 @@ export default function App() {
       </section>
 
       {/* Project Gallery Section */}
-      <section id="projects" className="max-w-6xl mx-auto px-6 py-10 relative z-10">
+      <section id="projects" className="max-w-6xl mx-auto px-6 py-10 relative z-10 scroll-mt-24">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
           <h2 className="text-2xl font-bold text-slate-200 flex items-center gap-2">
             <Terminal className="text-cyan-400" /> Featured Engineering Systems
           </h2>
 
-          {/* Filter Controls */}
           <div className="flex flex-wrap gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-white/10 backdrop-blur-md">
             {['all', 'web', 'ai', 'iot'].map((cat) => (
               <button
@@ -260,7 +300,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Dynamic Project Grid */}
         <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <AnimatePresence>
             {filteredProjects.map((project) => {
@@ -307,8 +346,8 @@ export default function App() {
         </motion.div>
       </section>
 
-      {/* Glassmorphism Contact Section */}
-      <section id="contact" className="max-w-6xl mx-auto px-6 py-20 relative z-10">
+      {/* Contact Section */}
+      <section id="contact" className="max-w-6xl mx-auto px-6 py-20 relative z-10 scroll-mt-24">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -316,11 +355,9 @@ export default function App() {
           transition={{ duration: 0.6 }}
           className="rounded-3xl border border-white/10 bg-slate-900/40 p-10 md:p-16 backdrop-blur-2xl shadow-[0_0_50px_rgba(0,0,0,0.3)] relative group overflow-hidden"
         >
-          {/* Subtle internal glow */}
           <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-blue-600/10 rounded-full blur-[80px] pointer-events-none group-hover:bg-blue-600/20 transition-all duration-700" />
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-12 relative z-10">
-            {/* Contact Info */}
             <div className="md:col-span-5 space-y-8">
               <div>
                 <span className="px-3 py-1 text-xs rounded-full bg-blue-950/80 text-blue-300 border border-blue-800/50 uppercase tracking-widest font-semibold">
@@ -344,7 +381,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Glassmorphism Form */}
             <form className="md:col-span-7 space-y-6 bg-slate-950/40 p-8 rounded-2xl border border-white/5 backdrop-blur-lg shadow-inner">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <input 

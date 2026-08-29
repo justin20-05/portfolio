@@ -6,3 +6,11 @@ body {
   font-family: system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
 }
+
+.nav-active {
+  color: var(--color-cyan-400);
+  background-color: rgb(8 47 73 / 0.4);
+  border-width: 1px;
+  border-color: rgb(21 94 117 / 0.5);
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+}

@@ -1,7 +1,7 @@
 import { Cpu, Globe, Activity, Layers } from 'lucide-react';
 
 export const person = {
-  name: 'Justin Alviar',
+  name: 'Justin James Alviar',
   firstName: 'Justin',
   role: 'Full-stack engineer',
   email: 'justinjamesalviar@gmail.com',

@@ -2,34 +2,32 @@ import { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-function FloatingParticles({ count = 1200 }) {
+function FloatingParticles({ count = 420 }) {
   const mesh = useRef();
 
-  // Generate random 3D positions and slight color variations
   const [positions, colors] = useMemo(() => {
     const pos = new Float32Array(count * 3);
     const col = new Float32Array(count * 3);
-    const cyan = new THREE.Color('#06b6d4');
-    const blue = new THREE.Color('#3b82f6');
+    const teal = new THREE.Color('#5eead4');
+    const mist = new THREE.Color('#94a3b8');
 
     for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 15;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 15;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 15;
+      pos[i * 3] = (Math.random() - 0.5) * 16;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 16;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 16;
 
-      const mixedColor = cyan.clone().lerp(blue, Math.random());
-      col[i * 3] = mixedColor.r;
-      col[i * 3 + 1] = mixedColor.g;
-      col[i * 3 + 2] = mixedColor.b;
+      const mixed = teal.clone().lerp(mist, 0.35 + Math.random() * 0.55);
+      col[i * 3] = mixed.r;
+      col[i * 3 + 1] = mixed.g;
+      col[i * 3 + 2] = mixed.b;
     }
     return [pos, col];
   }, [count]);
 
-  // Rotate points smoothly over time
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (mesh.current) {
-      mesh.current.rotation.x += delta * 0.03;
-      mesh.current.rotation.y += delta * 0.05;
+      mesh.current.rotation.x += delta * 0.012;
+      mesh.current.rotation.y += delta * 0.02;
     }
   });
 
@@ -50,21 +48,28 @@ function FloatingParticles({ count = 1200 }) {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.035}
+        size={0.028}
         vertexColors
         transparent
-        opacity={0.6}
+        opacity={0.38}
         sizeAttenuation
+        depthWrite={false}
       />
     </points>
   );
 }
 
 export default function ParticlesBackground() {
+  const reduceMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (reduceMotion) return null;
+
   return (
-    <div className="fixed inset-0 pointer-events-none z-0">
-      <Canvas camera={{ position: [0, 0, 5], fov: 60 }}>
-        <ambientLight intensity={0.5} />
+    <div className="fixed inset-0 pointer-events-none z-0 opacity-70">
+      <Canvas camera={{ position: [0, 0, 5], fov: 60 }} dpr={[1, 1.5]}>
+        <ambientLight intensity={0.4} />
         <FloatingParticles />
       </Canvas>
     </div>

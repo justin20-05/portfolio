@@ -1,175 +1,115 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Cpu, Globe, Activity, Terminal, Sparkles, Layers, Mail, MapPin, X, ExternalLink } from 'lucide-react';
-import ParticlesBackground from './components/particlesbackground';
+import {
+  ArrowUpRight,
+  Mail,
+  MapPin,
+  X,
+  Menu,
+  ArrowRight,
+  CheckCircle2,
+  AlertCircle,
+} from 'lucide-react';
+import ParticlesBackground from './components/ParticlesBackground';
 import profileImage from './assets/profile-cutout.png';
+import { person, projects, expertise, filters } from './data/portfolio';
 
-const projects = [
-  {
-    id: 'verifai',
-    category: 'ai',
-    title: 'VerifAI System',
-    subtitle: 'Neural Visual Verification Platform',
-    description: 'Machine learning-based AI image detection system leveraging MT-YOLOv6 for real-time visual validation and object classification.',
-    tech: ['MT-YOLOv6', 'PyTorch', 'React', 'Tailwind CSS'],
-    icon: Cpu,
-    accent: 'from-cyan-500/20 to-blue-500/10',
-    highlight: 'Sub-100ms Inference Pipeline',
-    deepDive: {
-      problem: 'Inefficient manual visual inspections causing throughput bottlenecks.',
-      solution: 'Automated defect detection using custom trained neural networks.',
-      architecture: 'ML microservice (PyTorch) connected via REST API to a React frontend dashboard.'
-    }
-  },
-  {
-    id: 'ibt-system',
-    category: 'web',
-    title: 'Integrated Bus Terminal System',
-    subtitle: 'Transit Operations Engine',
-    description: 'Centralized management platform built for scheduling bus trips, managing terminal fees, and tracking bus company metrics.',
-    tech: ['React', 'Node.js', 'Express', 'MongoDB'],
-    icon: Globe,
-    accent: 'from-blue-500/20 to-indigo-500/10',
-    highlight: 'Php Currency Formatting & Billing Log',
-    deepDive: {
-      problem: 'Disjointed terminal management, manual logging, and frequent revenue discrepancies.',
-      solution: 'An integrated web platform digitizing trip scheduling, fee calculation, and operator access.',
-      architecture: 'Full MERN Stack (MongoDB, Express, React, Node.js) with role-based authentication.'
-    }
-  },
-  {
-    id: 'iot-energy',
-    category: 'iot',
-    title: 'Smart Electricity Monitor',
-    subtitle: 'Hardware Telemetry & Analytics',
-    description: 'IoT telemetry system designed to monitor per-device energy consumption using smart plugs and physical current sensors.',
-    tech: ['IoT Sensors', 'Node.js', 'Express', 'WebSockets'],
-    icon: Activity,
-    accent: 'from-emerald-500/20 to-teal-500/10',
-    highlight: 'Real-time Hardware-to-Web Telemetry',
-    deepDive: {
-      problem: 'Lack of granular power visibility leading to phantom energy loss.',
-      solution: 'Networked hardware sensors streaming per-second consumption data to a WebSocket server.',
-      architecture: 'Hardware nodes (IoT Sensors) communication via MQTT/WebSockets to Node.js backend.'
-    }
-  },
-  {
-    id: 'supplier-tracker',
-    category: 'web',
-    title: 'Supplier Tracker & Platform',
-    subtitle: 'Asset & Contract Ledger',
-    description: 'Modular tracker managing supplier logs, contract renewals, and transactional audit trails for operational platforms.',
-    tech: ['React', 'Vite', 'Tailwind CSS', 'Node.js'],
-    icon: Layers,
-    accent: 'from-purple-500/20 to-cyan-500/10',
-    highlight: 'Dynamic Contract Renewal Engine',
-    deepDive: {
-      problem: 'Unorganized vendor contracts, leading to missed renewals and complex financial auditing.',
-      solution: 'Unified visual interface with real-time tracking, notification engine, and transactional history.',
-      architecture: 'React frontend with heavy use of context API; Node.js backend for transaction ledger.'
-    }
-  }
-];
-
-const focusAreas = [
-  {
-    id: 'web',
-    label: 'Full-Stack Systems',
-    summary: 'MERN applications designed for operational clarity and scale.',
-    metrics: [
-      { label: 'Latency', value: 92, tone: 'bg-cyan-400' },
-      { label: 'Uptime', value: 99, tone: 'bg-emerald-400' },
-      { label: 'Automation', value: 88, tone: 'bg-violet-400' }
-    ],
-    stat: '8+ web platforms shipped'
-  },
-  {
-    id: 'ai',
-    label: 'AI Vision',
-    summary: 'Neural inference pipelines tuned for live image verification.',
-    metrics: [
-      { label: 'Accuracy', value: 96, tone: 'bg-cyan-400' },
-      { label: 'Speed', value: 94, tone: 'bg-blue-400' },
-      { label: 'Insight', value: 91, tone: 'bg-indigo-400' }
-    ],
-    stat: 'Sub-100ms response window'
-  },
-  {
-    id: 'iot',
-    label: 'IoT Engineering',
-    summary: 'Device telemetry and dashboards for real-time operational insight.',
-    metrics: [
-      { label: 'Sensors', value: 90, tone: 'bg-green-400' },
-      { label: 'Sync', value: 93, tone: 'bg-cyan-400' },
-      { label: 'Analytics', value: 89, tone: 'bg-teal-400' }
-    ],
-    stat: 'Live hardware-to-web monitoring'
-  }
-];
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
+};
 
 const ProjectModal = ({ project, onClose }) => {
-  if (!project) return null;
-  const IconComponent = project.icon;
+  const Icon = project.icon;
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [onClose]);
+
+  const blocks = [
+    { title: 'Problem', body: project.deepDive.problem },
+    { title: 'Solution', body: project.deepDive.solution },
+    { title: 'Architecture', body: project.deepDive.architecture },
+  ];
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center p-6"
+      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-6 backdrop-blur-md"
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="project-title"
     >
       <motion.div
-        initial={{ scale: 0.9, y: 30, opacity: 0 }}
-        animate={{ scale: 1, y: 0, opacity: 1 }}
-        exit={{ scale: 0.9, y: 30, opacity: 0 }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="relative bg-slate-900 border border-white/10 rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-10 shadow-[0_0_60px_rgba(6,182,212,0.15)] group"
+        initial={{ y: 40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 24, opacity: 0 }}
+        transition={{ type: 'spring', stiffness: 280, damping: 32 }}
+        className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl border border-white/10 bg-[#101218] p-7 sm:p-10 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <button 
-          onClick={onClose} 
-          className="absolute top-6 right-6 p-2 rounded-full bg-slate-800/60 text-slate-500 hover:text-white hover:bg-slate-700 transition-all"
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close project details"
+          className="absolute top-5 right-5 grid h-10 w-10 place-items-center rounded-full border border-white/10 text-mute hover:text-ink hover:bg-white/5 transition-colors"
         >
-          <X className="w-5 h-5" />
+          <X className="h-4 w-4" />
         </button>
 
-        <div className="flex items-center gap-4 mb-6">
-          <div className={`p-4 rounded-xl bg-gradient-to-br ${project.accent} border border-cyan-800/40`}>
-            <IconComponent className="w-8 h-8 text-cyan-400" />
+        <div className="flex items-start gap-4 pr-10">
+          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-accent/20 bg-accent/10 text-accent">
+            <Icon className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-3xl font-extrabold text-white">{project.title}</h2>
-            <p className="text-cyan-400 font-medium">{project.subtitle}</p>
+            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-accent">
+              {project.category} · {project.highlight}
+            </p>
+            <h2 id="project-title" className="font-display mt-1.5 text-2xl sm:text-3xl font-semibold tracking-tight text-ink">
+              {project.title}
+            </h2>
+            <p className="mt-1 text-sm text-mute">{project.subtitle}</p>
           </div>
         </div>
 
-        <p className="text-slate-300 text-lg leading-relaxed mb-8">{project.description}</p>
+        <p className="mt-6 text-[15px] leading-relaxed text-zinc-300">
+          {project.description}
+        </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-          <div className="p-6 rounded-2xl bg-slate-950 border border-white/5 space-y-4">
-            <h4 className="font-semibold text-cyan-300 text-sm uppercase tracking-wider">Problem Statement</h4>
-            <p className="text-slate-400 text-sm leading-relaxed">{project.deepDive.problem}</p>
-            <h4 className="font-semibold text-cyan-300 text-sm uppercase tracking-wider pt-2">Engineered Solution</h4>
-            <p className="text-slate-400 text-sm leading-relaxed">{project.deepDive.solution}</p>
-          </div>
-          <div className="p-6 rounded-2xl bg-slate-950 border border-white/5">
-            <h4 className="font-semibold text-cyan-300 text-sm uppercase tracking-wider mb-3">System Architecture</h4>
-            <p className="text-slate-400 text-sm leading-relaxed">{project.deepDive.architecture}</p>
-          </div>
+        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          {blocks.map((block) => (
+            <div
+              key={block.title}
+              className="rounded-2xl border border-white/8 bg-canvas/60 p-4"
+            >
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
+                {block.title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-mute">{block.body}</p>
+            </div>
+          ))}
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-8 pt-8 border-t border-white/5">
-          <div className="flex flex-wrap gap-2">
-            {project.tech.map((tech, i) => (
-              <span key={i} className="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-white/5">
-                {tech}
-              </span>
-            ))}
-          </div>
-          <a href="#" className="flex items-center gap-2 text-sm font-semibold text-cyan-400 hover:text-cyan-300 transition-colors">
-            View Live Deployment <ExternalLink className="w-4 h-4" />
-          </a>
+        <div className="mt-8 flex flex-wrap gap-2 border-t border-white/8 pt-6">
+          {project.tech.map((tech) => (
+            <span
+              key={tech}
+              className="rounded-full border border-white/8 bg-white/[0.03] px-3 py-1 text-xs text-zinc-300"
+            >
+              {tech}
+            </span>
+          ))}
         </div>
       </motion.div>
     </motion.div>
@@ -180,335 +120,569 @@ export default function App() {
   const [activeSection, setActiveSection] = useState('overview');
   const [filter, setFilter] = useState('all');
   const [selectedProject, setSelectedProject] = useState(null);
-  const [selectedFocus, setSelectedFocus] = useState('web');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [navHidden, setNavHidden] = useState(false);
+  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
+  const [formStatus, setFormStatus] = useState('idle');
+  const [formError, setFormError] = useState('');
 
-  // Automatically update active nav highlight on scroll
   useEffect(() => {
-    const handleScroll = () => {
-      const sections = ['overview', 'projects', 'contact'];
-      const scrollPosition = window.scrollY + 200;
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      setNavHidden(y > lastY && y > 80);
+      lastY = y;
 
-      for (const sectionId of sections) {
-        const element = document.getElementById(sectionId);
-        if (element) {
-          const top = element.offsetTop;
-          const height = element.offsetHeight;
-
-          if (scrollPosition >= top && scrollPosition < top + height) {
-            setActiveSection(sectionId);
-            break;
-          }
+      const ids = ['overview', 'work', 'about', 'contact'];
+      const position = y + 140;
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        const top = el.offsetTop;
+        const height = el.offsetHeight;
+        if (position >= top && position < top + height) {
+          setActiveSection(id);
+          break;
         }
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const filteredProjects = filter === 'all' 
-    ? projects 
-    : projects.filter(p => p.category === filter);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [menuOpen]);
 
-  const activeFocus = focusAreas.find((area) => area.id === selectedFocus) || focusAreas[0];
+  const closeProject = useCallback(() => setSelectedProject(null), []);
 
-  const navItemBase = "px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer border inline-block";
-  const navItemInactive = "text-slate-400 hover:text-cyan-400 hover:bg-cyan-950/20 border-transparent";
-  const navItemActive = "text-cyan-400 bg-cyan-950/40 border-cyan-800/50 shadow-[0_0_15px_rgba(6,182,212,0.3)]";
+  const filteredProjects =
+    filter === 'all' ? projects : projects.filter((p) => p.category === filter);
+
+  const navLinks = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'work', label: 'Work' },
+    { id: 'about', label: 'About' },
+    { id: 'contact', label: 'Contact' },
+  ];
+
+  const updateField = (e) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const submitInquiry = async (e) => {
+    e.preventDefault();
+    setFormStatus('sending');
+    setFormError('');
+
+    try {
+      const api = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${api}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) throw new Error('Could not send right now.');
+
+      setFormStatus('sent');
+      setForm({ name: '', email: '', subject: '', message: '' });
+    } catch {
+      setFormStatus('error');
+      setFormError('Message could not be delivered. You can email me directly instead.');
+    }
+  };
+
+  const fieldClass =
+    'w-full rounded-xl border border-white/10 bg-canvas px-4 py-3 text-sm text-ink placeholder:text-faint outline-none transition-colors focus:border-accent/50 focus:ring-1 focus:ring-accent/30';
 
   return (
-    <div className="min-h-screen bg-[#0b0f17] text-slate-100 relative font-sans scroll-smooth">
+    <div className="relative min-h-screen bg-canvas text-ink">
       <ParticlesBackground />
+      <div className="noise" aria-hidden="true" />
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-[520px] grid-fade"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute -top-32 left-1/2 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-accent/[0.07] blur-[120px]"
+        aria-hidden="true"
+      />
 
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
+      <a
+        href="#overview"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[120] focus:rounded-lg focus:bg-accent focus:px-3 focus:py-2 focus:text-canvas"
+      >
+        Skip to content
+      </a>
 
       <AnimatePresence>
         {selectedProject && (
-          <ProjectModal 
-            project={selectedProject} 
-            onClose={() => setSelectedProject(null)} 
-          />
+          <ProjectModal project={selectedProject} onClose={closeProject} />
         )}
       </AnimatePresence>
 
-      {/* Navigation with dynamic active section detection */}
-      <nav className="p-6 border-b border-white/10 backdrop-blur-md sticky top-0 z-50 flex justify-between items-center px-8">
-        <a 
-          href="#overview" 
-          onClick={() => setActiveSection('overview')} 
-          className="flex items-center gap-2 text-cyan-400 font-bold text-lg tracking-wider"
-        >
-          <Sparkles className="w-5 h-5" />
-          <span>DEVELOPER.PORTFOLIO</span>
-        </a>
-        
-        <div className="flex gap-2 items-center bg-slate-900/60 p-1.5 rounded-xl border border-white/5 shadow-inner">
-          <a 
-            href="#overview" 
-            onClick={() => setActiveSection('overview')}
-            className={`${navItemBase} ${activeSection === 'overview' ? navItemActive : navItemInactive}`}
-          >
-            Overview
+      <header
+        className={`sticky top-0 z-50 border-b border-white/5 backdrop-blur-xl bg-canvas/75 transition-transform duration-300 ${
+          navHidden && !menuOpen ? '-translate-y-full' : 'translate-y-0'
+        }`}
+      >
+        <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+          <a href="#overview" className="flex items-center gap-2.5 group">
+            <span className="grid h-8 w-8 place-items-center rounded-lg border border-accent/25 bg-accent/10 font-display text-[11px] font-bold tracking-wide text-accent">
+              JA
+            </span>
+            <span className="hidden sm:block text-sm font-medium tracking-tight text-ink group-hover:text-accent transition-colors">
+              {person.name}
+            </span>
           </a>
 
-          <a 
-            href="#projects" 
-            onClick={() => setActiveSection('projects')}
-            className={`${navItemBase} ${activeSection === 'projects' ? navItemActive : navItemInactive}`}
-          >
-            Projects
-          </a>
-
-          <a 
-            href="#contact" 
-            onClick={() => setActiveSection('contact')}
-            className={`${navItemBase} ${activeSection === 'contact' ? navItemActive : navItemInactive}`}
-          >
-            Contact
-          </a>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section id="overview" className="max-w-6xl mx-auto px-6 py-20 relative z-10 scroll-mt-24">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="flex flex-col md:flex-row items-center justify-between gap-10"
-        >
-          <div className="relative shrink-0 group">
-            <div className="absolute -inset-4 bg-gradient-to-r from-cyan-500/30 via-blue-500/20 to-purple-600/30 rounded-3xl blur-2xl opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 pointer-events-none" />
-
-            <div className="relative w-52 h-64 md:w-64 md:h-80 rounded-3xl bg-slate-900/60 border border-cyan-500/30 backdrop-blur-xl overflow-hidden shadow-[0_0_50px_rgba(6,182,212,0.15)] flex items-end justify-center transition-all duration-500 group-hover:border-cyan-400/60">
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-500/10 via-transparent to-transparent pointer-events-none" />
-
-              <img 
-                src={profileImage} 
-                alt="Profile Cutout" 
-                className="relative z-10 h-[92%] w-auto object-cover object-bottom filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] group-hover:scale-105 transition-transform duration-500"
-              />
-
-              <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent z-20 pointer-events-none" />
-            </div>
-
-            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-30 px-3 py-1 rounded-full bg-slate-900/90 border border-cyan-400/50 text-[10px] font-mono tracking-widest text-cyan-400 uppercase flex items-center gap-1.5 shadow-lg backdrop-blur-md">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-              <span>System Node</span>
-            </div>
+          <div className="hidden md:flex items-center gap-1 rounded-full border border-white/8 bg-white/[0.03] p-1">
+            {navLinks.map((link) => (
+              <a
+                key={link.id}
+                href={`#${link.id}`}
+                className={`rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
+                  activeSection === link.id
+                    ? 'bg-white/10 text-ink'
+                    : 'text-mute hover:text-ink'
+                }`}
+              >
+                {link.label}
+              </a>
+            ))}
           </div>
 
-          <div className="text-center md:text-left max-w-2xl">
-            <span className="px-3.5 py-1 text-xs rounded-full bg-cyan-950/80 text-cyan-400 border border-cyan-800/50 uppercase tracking-widest font-semibold inline-block">
-              Full-Stack • AI / Machine Learning • IoT Engineering
-            </span>
+          <div className="flex items-center gap-2">
+            <a
+              href="#contact"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-[13px] font-semibold text-canvas hover:bg-accent-dim transition-colors"
+            >
+              Let’s talk
+              <ArrowRight className="h-3.5 w-3.5" />
+            </a>
+            <button
+              type="button"
+              className="md:hidden grid h-10 w-10 place-items-center rounded-xl border border-white/15 bg-white/[0.04] text-ink"
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((v) => !v)}
+            >
+              {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            </button>
+          </div>
+        </nav>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mt-6 bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent leading-tight">
-              Architecting Web Systems, Visual AI & Hardware
-            </h1>
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="md:hidden overflow-hidden border-t border-white/5 bg-canvas/95"
+            >
+              <div className="flex flex-col gap-1 px-5 py-4">
+                {navLinks.map((link) => (
+                  <a
+                    key={link.id}
+                    href={`#${link.id}`}
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-xl px-3 py-3 text-sm ${
+                      activeSection === link.id ? 'bg-white/8 text-ink' : 'text-mute'
+                    }`}
+                  >
+                    {link.label}
+                  </a>
+                ))}
+                <a
+                  href="#contact"
+                  onClick={() => setMenuOpen(false)}
+                  className="mt-2 rounded-xl bg-accent px-3 py-3 text-center text-sm font-semibold text-canvas"
+                >
+                  Let’s talk
+                </a>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
 
-            <p className="mt-5 text-slate-400 text-base md:text-lg leading-relaxed">
-              Engineering dynamic MERN stack applications, deep learning image verification models, and real-time IoT energy monitoring solutions.
-            </p>
+      <main>
+        <section id="overview" className="relative z-10 mx-auto max-w-6xl px-5 sm:px-8 pt-16 sm:pt-24 pb-20">
+          <div className="grid items-center gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
+            <motion.div
+              initial="hidden"
+              animate="show"
+              variants={fadeUp}
+              className="text-center lg:text-left"
+            >
+              <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-accent">
+                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                Available for projects
+              </p>
 
-            <div className="mt-8 flex flex-wrap justify-center md:justify-start gap-2">
-              {focusAreas.map((area) => (
+              <h1 className="font-display mt-6 text-[2.6rem] leading-[1.08] font-semibold tracking-tight sm:text-6xl">
+                {person.name}
+              </h1>
+              <p className="mt-3 text-lg text-mute sm:text-xl">
+                {person.role} — web systems, visual AI &amp; hardware.
+              </p>
+
+              <p className="mt-6 mx-auto lg:mx-0 max-w-xl text-[15px] sm:text-base leading-relaxed text-zinc-400">
+                I design and ship MERN applications, neural image-verification models,
+                and real-time IoT monitoring — interfaces that stay clear, and systems
+                that hold up in production.
+              </p>
+
+              <div className="mt-8 flex flex-wrap justify-center lg:justify-start gap-3">
+                <a
+                  href="#work"
+                  className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-canvas hover:bg-accent-dim transition-colors"
+                >
+                  View selected work
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+                <a
+                  href="#contact"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/12 px-5 py-2.5 text-sm font-medium text-ink hover:border-accent/40 hover:text-accent transition-colors"
+                >
+                  Get in touch
+                </a>
+              </div>
+
+              <div className="mt-10 flex flex-wrap justify-center lg:justify-start gap-2">
+                {['React', 'Node.js', 'PyTorch', 'IoT', 'MongoDB'].map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full border border-white/8 px-3 py-1 text-xs text-mute"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+              className="relative mx-auto w-full max-w-sm lg:ml-auto lg:mr-0"
+            >
+              <div className="absolute -inset-8 rounded-full bg-accent/10 blur-3xl" aria-hidden="true" />
+              <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-raised shadow-[0_30px_80px_-40px_rgba(0,0,0,0.8)]">
+                <img
+                  src={profileImage}
+                  alt={`${person.name}, ${person.role}`}
+                  className="aspect-[4/5] w-full object-cover object-[center_12%]"
+                />
+                <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-canvas via-canvas/50 to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between rounded-2xl border border-white/10 bg-canvas/70 px-4 py-3 backdrop-blur-md">
+                  <div>
+                    <p className="text-xs text-mute">Currently</p>
+                    <p className="text-sm font-medium text-ink">Building production systems</p>
+                  </div>
+                  <span className="h-2 w-2 rounded-full bg-accent shadow-[0_0_12px_#5eead4]" />
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        <section id="work" className="relative z-10 mx-auto max-w-6xl px-5 sm:px-8 py-20">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between mb-10">
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-accent">
+                02 — Selected work
+              </p>
+              <h2 className="font-display mt-2 text-3xl sm:text-4xl font-semibold tracking-tight">
+                Systems in production
+              </h2>
+            </div>
+
+            <div className="flex flex-wrap gap-1 rounded-full border border-white/8 bg-white/[0.03] p-1 self-start">
+              {filters.map((cat) => (
                 <button
-                  key={area.id}
+                  key={cat.id}
                   type="button"
-                  onClick={() => setSelectedFocus(area.id)}
-                  className={`px-3 py-1.5 rounded-full border text-xs font-semibold uppercase tracking-[0.18em] transition-all ${
-                    selectedFocus === area.id
-                      ? 'border-cyan-400/60 bg-cyan-500/10 text-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.2)]'
-                      : 'border-white/10 bg-slate-900/60 text-slate-400 hover:border-cyan-500/40 hover:text-cyan-300'
+                  onClick={() => setFilter(cat.id)}
+                  className={`rounded-full px-3.5 py-1.5 text-xs font-medium capitalize transition-colors ${
+                    filter === cat.id
+                      ? 'bg-accent text-canvas'
+                      : 'text-mute hover:text-ink'
                   }`}
                 >
-                  {area.label}
+                  {cat.label}
                 </button>
               ))}
             </div>
-
-            <div className="mt-8 rounded-2xl border border-cyan-500/20 bg-slate-900/60 p-5 backdrop-blur-xl shadow-[0_0_30px_rgba(6,182,212,0.08)]">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.3em] text-cyan-300/80">System telemetry</p>
-                  <h2 className="mt-2 text-xl font-bold text-white">{activeFocus.label}</h2>
-                </div>
-                <div className="flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-300">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                  Online
-                </div>
-              </div>
-
-              <p className="mt-3 text-sm text-slate-300">{activeFocus.summary}</p>
-
-              <div className="mt-5 grid grid-cols-3 gap-3">
-                {activeFocus.metrics.map((metric) => (
-                  <div key={metric.label} className="rounded-xl border border-white/5 bg-slate-950/40 p-3">
-                    <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-slate-400">
-                      <span>{metric.label}</span>
-                      <span>{metric.value}%</span>
-                    </div>
-                    <div className="h-2 w-full rounded-full bg-slate-800">
-                      <div
-                        className={`${metric.tone} h-2 rounded-full`}
-                        style={{ width: `${metric.value}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-5 flex items-center justify-between rounded-xl border border-white/5 bg-slate-950/40 px-3 py-2 text-sm text-slate-300">
-                <span className="text-slate-400">Current focus</span>
-                <span className="font-semibold text-cyan-300">{activeFocus.stat}</span>
-              </div>
-            </div>
           </div>
-        </motion.div>
-      </section>
 
-      {/* Project Gallery Section */}
-      <section id="projects" className="max-w-6xl mx-auto px-6 py-10 relative z-10 scroll-mt-24">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
-          <h2 className="text-2xl font-bold text-slate-200 flex items-center gap-2">
-            <Terminal className="text-cyan-400" /> Featured Engineering Systems
+          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <AnimatePresence mode="popLayout">
+              {filteredProjects.map((project, index) => {
+                const Icon = project.icon;
+                return (
+                  <motion.button
+                    layout
+                    type="button"
+                    key={project.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    transition={{ duration: 0.28 }}
+                    onClick={() => setSelectedProject(project)}
+                    className="group relative overflow-hidden rounded-3xl border border-white/8 bg-raised/80 p-6 text-left backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent/25 hover:bg-raised hover:shadow-[0_20px_40px_-24px_rgba(94,234,212,0.25)]"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="font-display text-sm text-faint">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-white/8 px-2.5 py-1 text-[11px] uppercase tracking-wider text-mute">
+                        <Icon className="h-3 w-3 text-accent" />
+                        {project.category}
+                      </span>
+                    </div>
+
+                    <h3 className="font-display mt-6 text-xl font-semibold tracking-tight text-ink group-hover:text-accent transition-colors">
+                      {project.title}
+                    </h3>
+                    <p className="mt-1 text-sm text-mute">{project.subtitle}</p>
+                    <p className="mt-3 text-sm leading-relaxed text-zinc-400 line-clamp-2">
+                      {project.description}
+                    </p>
+
+                    <div className="mt-6 flex items-center justify-between gap-3 border-t border-white/6 pt-5">
+                      <div className="flex flex-wrap gap-1.5">
+                        {project.tech.slice(0, 3).map((tech) => (
+                          <span
+                            key={tech}
+                            className="rounded-full bg-white/[0.04] px-2.5 py-1 text-[11px] text-mute"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-accent opacity-80 md:opacity-0 md:translate-x-1 md:group-hover:opacity-100 md:group-hover:translate-x-0 transition-all">
+                        View
+                        <ArrowUpRight className="h-3.5 w-3.5" />
+                      </span>
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </AnimatePresence>
+          </motion.div>
+        </section>
+
+        <section id="about" className="relative z-10 mx-auto max-w-6xl px-5 sm:px-8 py-20">
+          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-accent">
+            03 — Practice
+          </p>
+          <h2 className="font-display mt-2 max-w-2xl text-3xl sm:text-4xl font-semibold tracking-tight">
+            Three layers of the stack, one way of working.
           </h2>
+          <p className="mt-4 max-w-2xl text-mute leading-relaxed">
+            Whether the problem is a dashboard, a model, or a sensor, the goal is the
+            same: make the system understandable, fast, and reliable.
+          </p>
 
-          <div className="flex flex-wrap gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-white/10 backdrop-blur-md">
-            {['all', 'web', 'ai', 'iot'].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setFilter(cat)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all ${
-                  filter === cat 
-                    ? 'bg-cyan-500 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.4)]' 
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
+          <div className="mt-12 grid gap-4 md:grid-cols-3">
+            {expertise.map((area, i) => (
+              <motion.article
+                key={area.id}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ delay: i * 0.08, duration: 0.45 }}
+                className="rounded-3xl border border-white/8 bg-raised/70 p-6 transition-colors hover:border-white/12"
               >
-                {cat}
-              </button>
+                <span className="font-display text-sm text-accent">{area.index}</span>
+                <h3 className="font-display mt-4 text-xl font-semibold tracking-tight">
+                  {area.label}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-mute">{area.summary}</p>
+                <div className="mt-6 flex flex-wrap gap-1.5">
+                  {area.tech.map((tech) => (
+                    <span
+                      key={tech}
+                      className="rounded-full border border-white/8 px-2.5 py-1 text-[11px] text-zinc-400"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </motion.article>
             ))}
           </div>
-        </div>
+        </section>
 
-        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <AnimatePresence>
-            {filteredProjects.map((project) => {
-              const IconComponent = project.icon;
-              return (
-                <motion.div
-                  layout
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.3 }}
-                  key={project.id}
-                  onClick={() => setSelectedProject(project)}
-                  className={`cursor-pointer rounded-2xl border border-white/10 bg-slate-900/60 p-6 backdrop-blur-xl hover:border-cyan-500/40 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] transition-all duration-300 relative group overflow-hidden bg-gradient-to-br ${project.accent}`}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2 text-cyan-400">
-                      <IconComponent className="w-5 h-5" />
-                      <span className="text-xs font-semibold uppercase tracking-wider">{project.category}</span>
-                    </div>
-                    <span className="text-[10px] px-2 py-0.5 rounded border border-cyan-800/40 bg-cyan-950/40 text-cyan-300 group-hover:border-cyan-500 transition-colors">
-                      {project.highlight}
-                    </span>
-                  </div>
-
-                  <h3 className="text-xl font-bold text-white group-hover:text-cyan-100 transition-colors">{project.title}</h3>
-                  <p className="text-xs text-cyan-400/80 font-medium mb-2">{project.subtitle}</p>
-                  <p className="text-slate-400 text-sm line-clamp-2">{project.description}</p>
-
-                  <div className="mt-6 flex flex-wrap gap-2 pt-5 border-t border-white/5">
-                    {project.tech.slice(0, 3).map((tech, i) => (
-                      <span key={i} className="text-xs px-2.5 py-1 rounded-full bg-slate-950/60 text-slate-300 border border-white/5">
-                        {tech}
-                      </span>
-                    ))}
-                    {project.tech.length > 3 && (
-                      <span className="text-xs text-slate-500 pt-1">+{project.tech.length - 3} more</span>
-                    )}
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </motion.div>
-      </section>
-
-      {/* Contact Section */}
-      <section id="contact" className="max-w-6xl mx-auto px-6 py-20 relative z-10 scroll-mt-24">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6 }}
-          className="rounded-3xl border border-white/10 bg-slate-900/40 p-10 md:p-16 backdrop-blur-2xl shadow-[0_0_50px_rgba(0,0,0,0.3)] relative group overflow-hidden"
-        >
-          <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-blue-600/10 rounded-full blur-[80px] pointer-events-none group-hover:bg-blue-600/20 transition-all duration-700" />
-
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-12 relative z-10">
-            <div className="md:col-span-5 space-y-8">
-              <div>
-                <span className="px-3 py-1 text-xs rounded-full bg-blue-950/80 text-blue-300 border border-blue-800/50 uppercase tracking-widest font-semibold">
-                  System Connection
-                </span>
-                <h3 className="text-4xl font-extrabold text-white mt-4 tracking-tight">Initiate Project Inquiry</h3>
-                <p className="text-slate-400 mt-4 text-base leading-relaxed">
-                  Connect to discuss MERN stack development, neural visual verification, or custom IoT telemetry integration.
+        <section id="contact" className="relative z-10 mx-auto max-w-6xl px-5 sm:px-8 py-20 pb-28">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            className="overflow-hidden rounded-[2rem] border border-white/8 bg-raised/80 p-8 sm:p-12"
+          >
+            <div className="grid gap-12 lg:grid-cols-12">
+              <div className="lg:col-span-5">
+                <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-accent">
+                  04 — Contact
                 </p>
+                <h2 className="font-display mt-3 text-3xl sm:text-4xl font-semibold tracking-tight">
+                  Let’s build something precise.
+                </h2>
+                <p className="mt-4 text-mute leading-relaxed">
+                  Open to product work, AI pipelines, and IoT integrations. Tell me
+                  what you’re trying to ship.
+                </p>
+
+                <div className="mt-8 space-y-4">
+                  <a
+                    href={`mailto:${person.email}`}
+                    className="flex items-center gap-3 text-sm text-zinc-300 hover:text-accent transition-colors"
+                  >
+                    <span className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.03] text-accent">
+                      <Mail className="h-4 w-4" />
+                    </span>
+                    {person.email}
+                  </a>
+                  <div className="flex items-center gap-3 text-sm text-zinc-300">
+                    <span className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.03] text-accent">
+                      <MapPin className="h-4 w-4" />
+                    </span>
+                    {person.location}
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-5 text-slate-300 text-sm">
-                <div className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-cyan-400" />
-                  <span>developer@system.local</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <MapPin className="w-5 h-5 text-cyan-400" />
-                  <span>Integrated Systems Lab</span>
-                </div>
+              <div className="lg:col-span-7">
+                {formStatus === 'sent' ? (
+                  <div className="flex h-full min-h-[280px] flex-col items-start justify-center rounded-2xl border border-accent/20 bg-accent/5 p-8">
+                    <CheckCircle2 className="h-8 w-8 text-accent" />
+                    <h3 className="font-display mt-4 text-2xl font-semibold">Message sent</h3>
+                    <p className="mt-2 text-sm text-mute">
+                      Thanks — I’ll get back to you as soon as I can.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setFormStatus('idle')}
+                      className="mt-6 text-sm font-medium text-accent hover:underline"
+                    >
+                      Send another
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={submitInquiry} className="space-y-4" noValidate>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <label className="block text-xs font-medium text-mute">
+                        Name
+                        <input
+                          required
+                          name="name"
+                          value={form.name}
+                          onChange={updateField}
+                          autoComplete="name"
+                          className={`${fieldClass} mt-1.5`}
+                          placeholder="Your name"
+                        />
+                      </label>
+                      <label className="block text-xs font-medium text-mute">
+                        Email
+                        <input
+                          required
+                          type="email"
+                          name="email"
+                          value={form.email}
+                          onChange={updateField}
+                          autoComplete="email"
+                          className={`${fieldClass} mt-1.5`}
+                          placeholder="you@studio.com"
+                        />
+                      </label>
+                    </div>
+                    <label className="block text-xs font-medium text-mute">
+                      Subject
+                      <input
+                        required
+                        name="subject"
+                        value={form.subject}
+                        onChange={updateField}
+                        className={`${fieldClass} mt-1.5`}
+                        placeholder="What should we talk about?"
+                      />
+                    </label>
+                    <label className="block text-xs font-medium text-mute">
+                      Message
+                      <textarea
+                        required
+                        name="message"
+                        value={form.message}
+                        onChange={updateField}
+                        rows={5}
+                        className={`${fieldClass} mt-1.5 resize-none`}
+                        placeholder="A short brief is enough."
+                      />
+                    </label>
+
+                    {formStatus === 'error' && (
+                      <p className="flex items-start gap-2 text-sm text-red-300">
+                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                        <span>
+                          {formError}{' '}
+                          <a
+                            href={`mailto:${person.email}?subject=${encodeURIComponent(form.subject || 'Project inquiry')}`}
+                            className="underline decoration-red-300/50 hover:text-red-200"
+                          >
+                            Email instead
+                          </a>
+                        </span>
+                      </p>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={formStatus === 'sending'}
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3.5 text-sm font-semibold text-canvas hover:bg-accent-dim disabled:opacity-60 transition-colors"
+                    >
+                      {formStatus === 'sending' ? 'Sending…' : 'Send message'}
+                      {formStatus !== 'sending' && <ArrowRight className="h-4 w-4" />}
+                    </button>
+                  </form>
+                )}
               </div>
             </div>
+          </motion.div>
+        </section>
+      </main>
 
-            <form className="md:col-span-7 space-y-6 bg-slate-950/40 p-8 rounded-2xl border border-white/5 backdrop-blur-lg shadow-inner">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <input 
-                  type="text" 
-                  placeholder="Operational Name" 
-                  className="w-full px-5 py-3.5 rounded-xl bg-slate-900 border border-white/10 text-white placeholder:text-slate-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all text-sm"
-                />
-                <input 
-                  type="email" 
-                  placeholder="Contact Email / ID" 
-                  className="w-full px-5 py-3.5 rounded-xl bg-slate-900 border border-white/10 text-white placeholder:text-slate-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all text-sm"
-                />
-              </div>
-              <input 
-                type="text" 
-                placeholder="Project Subject / System Title" 
-                className="w-full px-5 py-3.5 rounded-xl bg-slate-900 border border-white/10 text-white placeholder:text-slate-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all text-sm"
-              />
-              <textarea 
-                placeholder="Message transmission / Operational brief..." 
-                rows="5"
-                className="w-full px-5 py-4 rounded-xl bg-slate-900 border border-white/10 text-white placeholder:text-slate-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all text-sm resize-none"
-              />
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full py-4 rounded-xl bg-cyan-500 text-slate-950 font-bold uppercase tracking-wider text-xs shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] transition-all duration-300 flex items-center justify-center gap-2"
-              >
-                Transmit Query
-                <Sparkles className="w-4 h-4" />
-              </motion.button>
-            </form>
+      <footer className="relative z-10 border-t border-white/6">
+        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 sm:px-8 py-8 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-mute">
+            © {new Date().getFullYear()} {person.name}
+          </p>
+          <div className="flex items-center gap-5 text-sm text-mute">
+            <a href="#work" className="hover:text-ink transition-colors">
+              Work
+            </a>
+            <a href={`mailto:${person.email}`} className="hover:text-ink transition-colors">
+              Email
+            </a>
+            <a href="#overview" className="hover:text-ink transition-colors">
+              Back to top
+            </a>
           </div>
-        </motion.div>
-      </section>
+        </div>
+      </footer>
     </div>
   );
 }

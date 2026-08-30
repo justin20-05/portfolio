@@ -71,6 +71,42 @@ const projects = [
   }
 ];
 
+const focusAreas = [
+  {
+    id: 'web',
+    label: 'Full-Stack Systems',
+    summary: 'MERN applications designed for operational clarity and scale.',
+    metrics: [
+      { label: 'Latency', value: 92, tone: 'bg-cyan-400' },
+      { label: 'Uptime', value: 99, tone: 'bg-emerald-400' },
+      { label: 'Automation', value: 88, tone: 'bg-violet-400' }
+    ],
+    stat: '8+ web platforms shipped'
+  },
+  {
+    id: 'ai',
+    label: 'AI Vision',
+    summary: 'Neural inference pipelines tuned for live image verification.',
+    metrics: [
+      { label: 'Accuracy', value: 96, tone: 'bg-cyan-400' },
+      { label: 'Speed', value: 94, tone: 'bg-blue-400' },
+      { label: 'Insight', value: 91, tone: 'bg-indigo-400' }
+    ],
+    stat: 'Sub-100ms response window'
+  },
+  {
+    id: 'iot',
+    label: 'IoT Engineering',
+    summary: 'Device telemetry and dashboards for real-time operational insight.',
+    metrics: [
+      { label: 'Sensors', value: 90, tone: 'bg-green-400' },
+      { label: 'Sync', value: 93, tone: 'bg-cyan-400' },
+      { label: 'Analytics', value: 89, tone: 'bg-teal-400' }
+    ],
+    stat: 'Live hardware-to-web monitoring'
+  }
+];
+
 const ProjectModal = ({ project, onClose }) => {
   if (!project) return null;
   const IconComponent = project.icon;
@@ -144,6 +180,7 @@ export default function App() {
   const [activeSection, setActiveSection] = useState('overview');
   const [filter, setFilter] = useState('all');
   const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedFocus, setSelectedFocus] = useState('web');
 
   // Automatically update active nav highlight on scroll
   useEffect(() => {
@@ -172,6 +209,8 @@ export default function App() {
   const filteredProjects = filter === 'all' 
     ? projects 
     : projects.filter(p => p.category === filter);
+
+  const activeFocus = focusAreas.find((area) => area.id === selectedFocus) || focusAreas[0];
 
   const navItemBase = "px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer border inline-block";
   const navItemInactive = "text-slate-400 hover:text-cyan-400 hover:bg-cyan-950/20 border-transparent";
@@ -272,6 +311,60 @@ export default function App() {
             <p className="mt-5 text-slate-400 text-base md:text-lg leading-relaxed">
               Engineering dynamic MERN stack applications, deep learning image verification models, and real-time IoT energy monitoring solutions.
             </p>
+
+            <div className="mt-8 flex flex-wrap justify-center md:justify-start gap-2">
+              {focusAreas.map((area) => (
+                <button
+                  key={area.id}
+                  type="button"
+                  onClick={() => setSelectedFocus(area.id)}
+                  className={`px-3 py-1.5 rounded-full border text-xs font-semibold uppercase tracking-[0.18em] transition-all ${
+                    selectedFocus === area.id
+                      ? 'border-cyan-400/60 bg-cyan-500/10 text-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.2)]'
+                      : 'border-white/10 bg-slate-900/60 text-slate-400 hover:border-cyan-500/40 hover:text-cyan-300'
+                  }`}
+                >
+                  {area.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-8 rounded-2xl border border-cyan-500/20 bg-slate-900/60 p-5 backdrop-blur-xl shadow-[0_0_30px_rgba(6,182,212,0.08)]">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-cyan-300/80">System telemetry</p>
+                  <h2 className="mt-2 text-xl font-bold text-white">{activeFocus.label}</h2>
+                </div>
+                <div className="flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-300">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                  Online
+                </div>
+              </div>
+
+              <p className="mt-3 text-sm text-slate-300">{activeFocus.summary}</p>
+
+              <div className="mt-5 grid grid-cols-3 gap-3">
+                {activeFocus.metrics.map((metric) => (
+                  <div key={metric.label} className="rounded-xl border border-white/5 bg-slate-950/40 p-3">
+                    <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                      <span>{metric.label}</span>
+                      <span>{metric.value}%</span>
+                    </div>
+                    <div className="h-2 w-full rounded-full bg-slate-800">
+                      <div
+                        className={`${metric.tone} h-2 rounded-full`}
+                        style={{ width: `${metric.value}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-5 flex items-center justify-between rounded-xl border border-white/5 bg-slate-950/40 px-3 py-2 text-sm text-slate-300">
+                <span className="text-slate-400">Current focus</span>
+                <span className="font-semibold text-cyan-300">{activeFocus.stat}</span>
+              </div>
+            </div>
           </div>
         </motion.div>
       </section>

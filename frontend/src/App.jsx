@@ -122,7 +122,7 @@ export default function App() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [navHidden, setNavHidden] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
+  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '', website: '' });
   const [formStatus, setFormStatus] = useState('idle');
   const [formError, setFormError] = useState('');
 
@@ -193,13 +193,16 @@ export default function App() {
         body: JSON.stringify(form),
       });
 
-      if (!res.ok) throw new Error('Could not send right now.');
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null);
+        throw new Error(payload?.error || 'Could not send right now.');
+      }
 
       setFormStatus('sent');
-      setForm({ name: '', email: '', subject: '', message: '' });
-    } catch {
+      setForm({ name: '', email: '', subject: '', message: '', website: '' });
+    } catch (err) {
       setFormStatus('error');
-      setFormError('Message could not be delivered. You can email me directly instead.');
+      setFormError(err.message || 'Message could not be delivered. You can email me directly instead.');
     }
   };
 
@@ -582,7 +585,20 @@ export default function App() {
                     </button>
                   </div>
                 ) : (
-                  <form onSubmit={submitInquiry} className="space-y-4" noValidate>
+                  <form onSubmit={submitInquiry} className="relative space-y-4" noValidate>
+                    <div className="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
+                      <label>
+                        Website
+                        <input
+                          type="text"
+                          name="website"
+                          tabIndex={-1}
+                          autoComplete="off"
+                          value={form.website}
+                          onChange={updateField}
+                        />
+                      </label>
+                    </div>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <label className="block text-xs font-medium text-mute">
                         Name

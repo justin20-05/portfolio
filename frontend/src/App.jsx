@@ -9,10 +9,16 @@ import {
   ArrowRight,
   CheckCircle2,
   AlertCircle,
+  Download,
 } from 'lucide-react';
 import ParticlesBackground from './components/ParticlesBackground';
 import profileImage from './assets/profile-cutout.png';
 import { person, projects, expertise, filters } from './data/portfolio';
+
+const cvFile = {
+  href: '/cv.pdf',
+  filename: 'Justin-James-Alviar-CV.pdf',
+};
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -308,9 +314,18 @@ export default function App() {
                   </a>
                 ))}
                 <a
+                  href={cvFile.href}
+                  download={cvFile.filename}
+                  onClick={() => setMenuOpen(false)}
+                  className="mt-2 inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-3 text-sm font-medium text-ink"
+                >
+                  <Download className="h-4 w-4" />
+                  Download CV
+                </a>
+                <a
                   href="#contact"
                   onClick={() => setMenuOpen(false)}
-                  className="mt-2 rounded-xl bg-accent px-3 py-3 text-center text-sm font-semibold text-canvas"
+                  className="rounded-xl bg-accent px-3 py-3 text-center text-sm font-semibold text-canvas"
                 >
                   Let’s talk
                 </a>
@@ -360,6 +375,14 @@ export default function App() {
                   className="inline-flex items-center gap-2 rounded-full border border-white/12 px-5 py-2.5 text-sm font-medium text-ink hover:border-accent/40 hover:text-accent transition-colors"
                 >
                   Get in touch
+                </a>
+                <a
+                  href={cvFile.href}
+                  download={cvFile.filename}
+                  className="inline-flex items-center gap-2 rounded-full border border-white/12 px-5 py-2.5 text-sm font-medium text-ink hover:border-accent/40 hover:text-accent transition-colors"
+                >
+                  <Download className="h-4 w-4" />
+                  Download CV
                 </a>
               </div>
 
@@ -687,6 +710,13 @@ export default function App() {
             © {new Date().getFullYear()} {person.name}
           </p>
           <div className="flex items-center gap-5 text-sm text-mute">
+            <a
+              href={cvFile.href}
+              download={cvFile.filename}
+              className="hover:text-ink transition-colors"
+            >
+              CV
+            </a>
             <a href="#work" className="hover:text-ink transition-colors">
               Work
             </a>

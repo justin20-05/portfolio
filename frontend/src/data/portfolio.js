@@ -1,4 +1,11 @@
-import { Cpu, Globe, Activity, Layers } from 'lucide-react';
+import { 
+  ScanEye, 
+  Zap, 
+  Cpu, 
+  Globe, 
+  Activity, 
+  Layers 
+} from 'lucide-react';
 
 export const person = {
   name: 'Justin James Alviar',
@@ -11,76 +18,37 @@ export const person = {
 export const projects = [
   {
     id: 'verifai',
+    title: 'VerifAI Image Verification',
+    subtitle: 'Machine Learning & Object Detection System',
     category: 'ai',
-    title: 'VerifAI System',
-    subtitle: 'Neural visual verification',
-    description:
-      'Machine learning-based AI image detection system leveraging MT-YOLOv6 for real-time visual validation and object classification.',
-    tech: ['MT-YOLOv6', 'PyTorch', 'React', 'Tailwind CSS'],
-    icon: Cpu,
-    highlight: 'Sub-100ms inference',
+    highlight: 'MT-YOLOv6 Architecture',
+    icon: ScanEye,
+    description: 'A neural image-verification pipeline built for real-time manipulation detection and classification.',
     deepDive: {
-      problem: 'Inefficient manual visual inspections causing throughput bottlenecks.',
-      solution: 'Automated defect detection using custom-trained neural networks.',
-      architecture:
-        'ML microservice (PyTorch) connected via REST API to a React frontend dashboard.',
+      problem: 'High volume of synthetic or altered visual data bypasses manual inspection.',
+      solution: 'Deployed custom MT-YOLOv6 object detection models to flag anomalies at scale.',
+      architecture: 'PyTorch inference backend coupled with a React management dashboard.',
     },
-  },
-  {
-    id: 'ibt-system',
-    category: 'web',
-    title: 'Integrated Bus Terminal System',
-    subtitle: 'Transit operations platform',
-    description:
-      'Centralized management platform built for scheduling bus trips, managing terminal fees, and tracking bus company metrics.',
-    tech: ['React', 'Node.js', 'Express', 'MongoDB'],
-    icon: Globe,
-    highlight: 'Billing & scheduling',
-    deepDive: {
-      problem:
-        'Disjointed terminal management, manual logging, and frequent revenue discrepancies.',
-      solution:
-        'An integrated web platform digitizing trip scheduling, fee calculation, and operator access.',
-      architecture:
-        'Full MERN stack with role-based authentication for operators and administrators.',
-    },
+    tech: ['PyTorch', 'MT-YOLOv6', 'React', 'Node.js', 'Tailwind CSS'],
+    github: 'https://github.com/justin20-05/verifai',
+    live: 'https://verifai.example.com',
   },
   {
     id: 'iot-energy',
+    title: 'IoT Electricity Monitor',
+    subtitle: 'Hardware-to-Web Telemetry Suite',
     category: 'iot',
-    title: 'Smart Electricity Monitor',
-    subtitle: 'Hardware telemetry & analytics',
-    description:
-      'IoT telemetry system designed to monitor per-device energy consumption using smart plugs and physical current sensors.',
-    tech: ['IoT Sensors', 'Node.js', 'Express', 'WebSockets'],
-    icon: Activity,
-    highlight: 'Live hardware telemetry',
+    highlight: 'Real-Time Sensor Tracking',
+    icon: Zap,
+    description: 'System designed to track real-time power consumption per device via smart plugs and sensor networks.',
     deepDive: {
-      problem: 'Lack of granular power visibility leading to phantom energy loss.',
-      solution:
-        'Networked hardware sensors streaming per-second consumption data to a WebSocket server.',
-      architecture:
-        'Hardware nodes communicating via MQTT/WebSockets to a Node.js backend.',
+      problem: 'Lack of granular visibility into per-device power consumption.',
+      solution: 'Hardware sensor integration feeding real-time metrics directly into a MERN dashboard.',
+      architecture: 'Node.js/Express ingestion API, MongoDB time-series storage, WebSocket updates.',
     },
-  },
-  {
-    id: 'supplier-tracker',
-    category: 'web',
-    title: 'Supplier Tracker & Platform',
-    subtitle: 'Asset & contract ledger',
-    description:
-      'Modular tracker managing supplier logs, contract renewals, and transactional audit trails for operational platforms.',
-    tech: ['React', 'Vite', 'Tailwind CSS', 'Node.js'],
-    icon: Layers,
-    highlight: 'Renewal engine',
-    deepDive: {
-      problem:
-        'Unorganized vendor contracts, leading to missed renewals and complex financial auditing.',
-      solution:
-        'Unified visual interface with real-time tracking, a notification engine, and transactional history.',
-      architecture:
-        'React frontend with Context API; Node.js backend for the transaction ledger.',
-    },
+    tech: ['React', 'Node.js', 'Express', 'MongoDB', 'IoT Sensors'],
+    github: 'https://github.com/justin20-05/iot-electricity-monitor',
+    live: 'https://energy-monitor.example.com',
   },
 ];
 
@@ -92,6 +60,7 @@ export const expertise = [
     summary:
       'MERN applications designed for operational clarity — from scheduling engines to role-based dashboards.',
     tech: ['React', 'Node.js', 'Express', 'MongoDB'],
+    icon: Globe,
   },
   {
     id: 'ai',
@@ -100,6 +69,7 @@ export const expertise = [
     summary:
       'Neural inference pipelines tuned for live image verification, not just notebook demos.',
     tech: ['PyTorch', 'YOLOv6', 'REST APIs'],
+    icon: Cpu,
   },
   {
     id: 'iot',
@@ -108,6 +78,7 @@ export const expertise = [
     summary:
       'Device telemetry and dashboards that turn hardware signals into decisions in real time.',
     tech: ['Sensors', 'WebSockets', 'MQTT'],
+    icon: Activity,
   },
 ];
 

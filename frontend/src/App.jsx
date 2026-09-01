@@ -131,6 +131,13 @@ export default function App() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '', website: '' });
   const [formStatus, setFormStatus] = useState('idle');
   const [formError, setFormError] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const copyEmailToClipboard = () => {
+    navigator.clipboard.writeText(person.email);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   useEffect(() => {
     let lastY = window.scrollY;
@@ -573,20 +580,29 @@ export default function App() {
                 </p>
 
                 <div className="mt-8 space-y-4">
-                  <a
-                    href={`mailto:${person.email}`}
-                    className="flex items-center gap-3 text-sm text-zinc-300 hover:text-accent transition-colors"
+                  <button
+                    type="button"
+                    onClick={copyEmailToClipboard}
+                    className="flex items-center gap-3 text-sm text-zinc-300 hover:text-accent transition-colors text-left group"
                   >
-                    <span className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.03] text-accent">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.03] text-accent group-hover:border-accent/40 transition-colors">
                       <Mail className="h-4 w-4" />
                     </span>
-                    {person.email}
-                  </a>
+                    <div>
+                      <p className="font-medium text-ink group-hover:text-accent transition-colors">
+                        {person.email}
+                      </p>
+                      <p className="text-xs text-mute">
+                        {copied ? '✓ Copied to clipboard!' : 'Click to copy address'}
+                      </p>
+                    </div>
+                  </button>
+
                   <div className="flex items-center gap-3 text-sm text-zinc-300">
-                    <span className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.03] text-accent">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.03] text-accent">
                       <MapPin className="h-4 w-4" />
                     </span>
-                    {person.location}
+                    <p className="font-medium text-ink">{person.location}</p>
                   </div>
                 </div>
               </div>

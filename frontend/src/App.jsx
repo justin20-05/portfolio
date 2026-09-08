@@ -284,7 +284,7 @@ export default function App() {
         <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
           <a href="#overview" className="flex items-center gap-2.5 group">
             <span className="grid h-8 w-8 place-items-center rounded-lg border border-accent/25 bg-accent/10 font-display text-[11px] font-bold tracking-wide text-accent">
-              JA
+              JJEA
             </span>
             <span className="hidden sm:block text-sm font-medium tracking-tight text-ink group-hover:text-accent transition-colors">
               {person.name}

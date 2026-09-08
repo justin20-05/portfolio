@@ -12,6 +12,7 @@ import {
   Download,
 } from 'lucide-react';
 import ParticlesBackground from './components/ParticlesBackground';
+import SpotlightCard from './components/SpotlightCard';
 import profileImage from './assets/profile-cutout.png';
 import { person, projects, expertise, filters } from './data/portfolio';
 
@@ -492,66 +493,75 @@ export default function App() {
               {filteredProjects.map((project, index) => {
                 const Icon = project.icon;
                 return (
-                  <motion.button
+                  <motion.div
                     layout
-                    type="button"
                     key={project.id}
-                    initial={{ opacity: 0, y: 12 }}
+                    initial={{ opacity: 0, y: 22 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.98 }}
-                    transition={{ duration: 0.28 }}
-                    onClick={() => setSelectedProject(project)}
-                    className="group relative overflow-hidden rounded-3xl border border-white/8 bg-raised/80 p-6 text-left backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent/25 hover:bg-raised hover:shadow-[0_20px_40px_-24px_rgba(94,234,212,0.25)]"
+                    exit={{ opacity: 0, scale: 0.96 }}
+                    transition={{ duration: 0.4, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                    className="h-full"
                   >
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="font-display text-sm text-faint">
-                        {String(index + 1).padStart(2, '0')}
-                      </span>
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-white/8 px-2.5 py-1 text-[11px] uppercase tracking-wider text-mute">
-                        <Icon className="h-3 w-3 text-accent" />
-                        {project.category}
-                      </span>
-                    </div>
-
-                    <h3 className="font-display mt-6 text-xl font-semibold tracking-tight text-ink group-hover:text-accent transition-colors">
-                      {project.title}
-                    </h3>
-                    <p className="mt-1 text-sm text-mute">{project.subtitle}</p>
-                    <p className="mt-3 text-sm leading-relaxed text-zinc-400 line-clamp-2">
-                      {project.description}
-                    </p>
-
-                    <div className="mt-6 flex items-center justify-between gap-3 border-t border-white/6 pt-5">
-                      <div className="flex flex-wrap gap-1.5">
-                        {project.tech.slice(0, 3).map((tech) => (
-                          <span
-                            key={tech}
-                            className="rounded-full bg-white/[0.04] px-2.5 py-1 text-[11px] text-mute"
-                          >
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        {project.github && (
-                          <a
-                            href={project.github}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="text-xs font-medium text-mute hover:text-ink transition-colors"
-                          >
-                            Code
-                          </a>
-                        )}
-                        <span className="inline-flex items-center gap-1 text-xs font-medium text-accent">
-                          Details
-                          <ArrowUpRight className="h-3.5 w-3.5" />
+                    <SpotlightCard
+                      as="button"
+                      type="button"
+                      onClick={() => setSelectedProject(project)}
+                      className="h-full w-full cursor-pointer overflow-hidden rounded-3xl border border-white/8 bg-raised/80 p-6 text-left backdrop-blur-sm hover:border-accent/30 hover:shadow-[0_24px_48px_-28px_rgba(94,234,212,0.45)]"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-display text-sm text-faint">
+                          {String(index + 1).padStart(2, '0')}
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/8 bg-canvas/40 px-2.5 py-1 text-[11px] uppercase tracking-wider text-mute">
+                          <Icon className="icon-float h-3.5 w-3.5 text-accent" />
+                          {project.category}
                         </span>
                       </div>
-                    </div>
-                  </motion.button>
+
+                      <h3 className="font-display mt-6 text-xl font-semibold tracking-tight text-ink transition-colors group-hover:text-accent">
+                        {project.title}
+                      </h3>
+                      <p className="mt-1 text-sm text-mute">{project.subtitle}</p>
+                      <p className="mt-3 text-sm leading-relaxed text-zinc-400 line-clamp-2">
+                        {project.description}
+                      </p>
+
+                      <div className="mt-5 h-px w-full overflow-hidden bg-white/8">
+                        <div className="rule-fill h-px w-full bg-accent" />
+                      </div>
+
+                      <div className="mt-5 flex items-center justify-between gap-3">
+                        <div className="flex flex-wrap gap-1.5">
+                          {project.tech.slice(0, 3).map((tech) => (
+                            <span
+                              key={tech}
+                              className="chip-rise rounded-full bg-white/[0.04] px-2.5 py-1 text-[11px] text-mute"
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          {project.github && (
+                            <a
+                              href={project.github}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-xs font-medium text-mute hover:text-ink transition-colors"
+                            >
+                              Code
+                            </a>
+                          )}
+                          <span className="inline-flex items-center gap-1 text-xs font-medium text-accent">
+                            Details
+                            <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                          </span>
+                        </div>
+                      </div>
+                    </SpotlightCard>
+                  </motion.div>
                 );
               })}
             </AnimatePresence>
@@ -571,32 +581,49 @@ export default function App() {
           </p>
 
           <div className="mt-12 grid gap-4 md:grid-cols-3">
-            {expertise.map((area, i) => (
-              <motion.article
-                key={area.id}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ delay: i * 0.08, duration: 0.45 }}
-                className="rounded-3xl border border-white/8 bg-raised/70 p-6 transition-colors hover:border-white/12"
-              >
-                <span className="font-display text-sm text-accent">{area.index}</span>
-                <h3 className="font-display mt-4 text-xl font-semibold tracking-tight">
-                  {area.label}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-mute">{area.summary}</p>
-                <div className="mt-6 flex flex-wrap gap-1.5">
-                  {area.tech.map((tech) => (
-                    <span
-                      key={tech}
-                      className="rounded-full border border-white/8 px-2.5 py-1 text-[11px] text-zinc-400"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              </motion.article>
-            ))}
+            {expertise.map((area, i) => {
+              const Icon = area.icon;
+              return (
+                <motion.div
+                  key={area.id}
+                  initial={{ opacity: 0, y: 22 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.35 }}
+                  transition={{ delay: i * 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <SpotlightCard
+                    as="article"
+                    className="h-full overflow-hidden rounded-3xl border border-white/8 bg-raised/70 p-6 hover:border-accent/25"
+                  >
+                    <div className="flex items-start justify-between">
+                      <span className="font-display text-sm text-accent">{area.index}</span>
+                      {Icon && (
+                        <span className="grid h-10 w-10 place-items-center rounded-2xl border border-accent/20 bg-accent/10 text-accent">
+                          <Icon className="icon-float h-4 w-4" />
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="font-display mt-5 text-xl font-semibold tracking-tight transition-colors group-hover:text-accent">
+                      {area.label}
+                    </h3>
+                    <p className="mt-3 text-sm leading-relaxed text-mute">{area.summary}</p>
+                    <div className="mt-5 h-px w-full overflow-hidden bg-white/8">
+                      <div className="rule-fill h-px w-full bg-accent" />
+                    </div>
+                    <div className="mt-5 flex flex-wrap gap-1.5">
+                      {area.tech.map((tech) => (
+                        <span
+                          key={tech}
+                          className="chip-rise rounded-full border border-white/8 px-2.5 py-1 text-[11px] text-zinc-400"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </SpotlightCard>
+                </motion.div>
+              );
+            })}
           </div>
         </section>
 

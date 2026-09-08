@@ -75,6 +75,117 @@ body {
   mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, black 20%, transparent 75%);
 }
 
+@property --angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.spotlight-card {
+  position: relative;
+  isolation: isolate;
+  transform-style: preserve-3d;
+  transition: transform 0.22s ease-out, box-shadow 0.35s ease;
+  will-change: transform;
+}
+
+.spotlight-card__border,
+.spotlight-card__glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.spotlight-card__border {
+  z-index: 2;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--angle),
+    transparent 0%,
+    transparent 62%,
+    rgb(94 234 212 / 0.95),
+    rgb(125 211 252 / 0.7),
+    transparent 78%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.4;
+  animation: spin-angle 7s linear infinite;
+}
+
+.spotlight-card:hover .spotlight-card__border,
+.spotlight-card:focus-visible .spotlight-card__border {
+  opacity: 1;
+  animation-duration: 2.4s;
+}
+
+.spotlight-card__glow {
+  z-index: 0;
+  opacity: 0;
+  background: radial-gradient(
+    420px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    rgb(94 234 212 / 0.18),
+    transparent 42%
+  );
+  transition: opacity 0.35s ease;
+}
+
+.spotlight-card:hover .spotlight-card__glow,
+.spotlight-card:focus-visible .spotlight-card__glow {
+  opacity: 1;
+}
+
+.spotlight-card__body {
+  position: relative;
+  z-index: 1;
+}
+
+.chip-rise {
+  transition: transform 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+}
+
+.spotlight-card:hover .chip-rise:nth-child(1) { transform: translateY(-3px); transition-delay: 0ms; }
+.spotlight-card:hover .chip-rise:nth-child(2) { transform: translateY(-3px); transition-delay: 45ms; }
+.spotlight-card:hover .chip-rise:nth-child(3) { transform: translateY(-3px); transition-delay: 90ms; }
+.spotlight-card:hover .chip-rise:nth-child(4) { transform: translateY(-3px); transition-delay: 135ms; }
+
+.icon-float {
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.spotlight-card:hover .icon-float {
+  transform: translateY(-2px) rotate(-8deg) scale(1.08);
+}
+
+.rule-fill {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.spotlight-card:hover .rule-fill {
+  transform: scaleX(1);
+}
+
+@keyframes spin-angle {
+  to {
+    --angle: 360deg;
+  }
+}
+
+@media (hover: none) {
+  .spotlight-card__border {
+    opacity: 0.35;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -86,5 +197,9 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .spotlight-card {
+    transform: none !important;
   }
 }
